@@ -1,5 +1,18 @@
 # Arham Fintech — Internal Operations Portal (Coding Assignment)
 
+## Live Deployment
+
+- **Mock BSE API (Part A):** https://mock-bse-api-r32q.onrender.com
+  - Health check: https://mock-bse-api-r32q.onrender.com/health
+- **Internal Portal (Part B):** https://arham-internal-portal.onrender.com
+
+> **Note:** both are deployed on Render's free tier, which spins a service
+> down after ~15 minutes of no traffic. If a service was asleep, the first
+> request can take 30-60s to wake it up. If the portal shows retry/failure
+> log lines right after a cold start, that's expected — it's the retry logic
+> described below recovering automatically, not a bug. Everything below also
+> runs identically on localhost if you'd rather run it live during review.
+
 Two services:
 
 - **`part-a-mock-bse/`** — mock BSE Exchange API simulator (Part A)
@@ -125,7 +138,9 @@ background.
 - Storage is an in-memory `Map`-based store with periodic JSON snapshotting,
   not a real database — appropriate for a same-day take-home; see
   `ARCHITECTURE.md` for what changes in a production/100× setup (Postgres,
-  etc.).
+  etc.). Note this also means the live Render deployment's cache resets on
+  any redeploy/restart, since Render's filesystem is ephemeral — the poller
+  simply re-syncs from BSE within the first minute after a restart.
 - "Login" is a plain dropdown selecting an employee — there's no auth, per
   the brief's evaluation notes (UI polish and feature count beyond the brief
   aren't evaluated).

@@ -1,0 +1,14 @@
+{
+  "name": "mock-bse-api",
+  "version": "1.0.0",
+  "description": "Mock BSE Exchange API simulator - Part A",
+  "main": "server.js",
+  "type": "commonjs",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "BSE_DELAY_MS=200 BSE_FAILURE_RATE=0.2 node server.js"
+  },
+  "dependencies": {
+    "express": "^4.19.2"
+  }
+}

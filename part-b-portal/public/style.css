@@ -1,0 +1,24 @@
+* { box-sizing: border-box; }
+body { font-family: -apple-system, Segoe UI, Roboto, Arial, sans-serif; margin: 0; background: #f5f6f8; color: #1f2430; }
+header { background: #14213d; color: white; padding: 14px 20px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; }
+header h1 { font-size: 18px; margin: 0; }
+.session-bar { display: flex; align-items: center; gap: 12px; font-size: 13px; }
+.session-bar select { padding: 4px 6px; }
+.badge { background: #2b3a67; padding: 4px 10px; border-radius: 12px; font-size: 12px; }
+.badge.fresh { background: #1f8f4d; }
+nav#tabs { display: flex; gap: 4px; background: white; padding: 8px 16px; border-bottom: 1px solid #ddd; }
+nav#tabs button { background: none; border: none; padding: 8px 14px; cursor: pointer; font-size: 14px; border-radius: 6px; color: #444; }
+nav#tabs button.active { background: #14213d; color: white; }
+main { padding: 20px; }
+.view { display: none; }
+.view.active { display: block; }
+h2 { margin-top: 0; font-size: 18px; }
+.filters { margin-bottom: 12px; display: flex; gap: 8px; }
+.filters input { padding: 6px 8px; border: 1px solid #ccc; border-radius: 4px; }
+.filters button { padding: 6px 14px; border: none; background: #14213d; color: white; border-radius: 4px; cursor: pointer; }
+.table-wrap { background: white; border-radius: 8px; overflow: auto; max-height: 70vh; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+table { border-collapse: collapse; width: 100%; font-size: 13px; }
+th, td { text-align: left; padding: 8px 12px; border-bottom: 1px solid #eee; white-space: nowrap; }
+th { background: #fafafa; position: sticky; top: 0; }
+tr:hover td { background: #f9fbff; }
+.empty { padding: 20px; color: #888; }

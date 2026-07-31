@@ -1,0 +1,3 @@
+node_modules/
+.cache-snapshot.json
+*.log

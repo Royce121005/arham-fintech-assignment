@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>Arham Fintech — Internal Operations Portal</title>
+<link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header>
+    <h1>Arham Fintech — Internal Operations Portal</h1>
+    <div class="session-bar">
+      <label>Viewing as:
+        <select id="userSelect"></select>
+      </label>
+      <span id="syncBadge" class="badge">syncing…</span>
+    </div>
+  </header>
+
+  <nav id="tabs">
+    <button data-view="clients" class="active">Clients</button>
+    <button data-view="trades">Trades</button>
+    <button data-view="myClients">My Clients</button>
+    <button data-view="employees">Employees</button>
+    <button data-view="incentives">Incentives</button>
+  </nav>
+
+  <main id="content">
+    <section id="view-clients" class="view active">
+      <h2>Clients</h2>
+      <div id="clientsTable" class="table-wrap"></div>
+    </section>
+
+    <section id="view-trades" class="view">
+      <h2>Trades</h2>
+      <div class="filters">
+        <input id="tradeClientFilter" placeholder="Client ID (e.g. CLI00001)" />
+        <input id="tradeFromFilter" type="date" />
+        <input id="tradeToFilter" type="date" />
+        <button id="tradeFilterBtn">Filter</button>
+      </div>
+      <div id="tradesTable" class="table-wrap"></div>
+    </section>
+
+    <section id="view-myClients" class="view">
+      <h2>My Clients</h2>
+      <div id="myClientsTable" class="table-wrap"></div>
+    </section>
+
+    <section id="view-employees" class="view">
+      <h2>Employees</h2>
+      <div id="employeesTable" class="table-wrap"></div>
+    </section>
+
+    <section id="view-incentives" class="view">
+      <h2>Incentives</h2>
+      <div id="incentivesTable" class="table-wrap"></div>
+    </section>
+  </main>
+
+  <script src="app.js"></script>
+</body>
+</html>

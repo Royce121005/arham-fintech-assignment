@@ -1,0 +1,17 @@
+{
+  "name": "arham-ingestion-worker",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Sync worker: pulls BSE mock API (paginated, retried, incremental) and writes into Postgres via Supabase service role.",
+  "main": "sync.js",
+  "scripts": {
+    "start": "node sync.js"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.45.0",
+    "dotenv": "^17.4.2"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

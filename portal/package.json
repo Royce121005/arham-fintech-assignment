@@ -1,0 +1,17 @@
+{
+  "name": "arham-portal",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Static file server for the internal ops portal. No read API — the browser reads Postgres directly via supabase-js, scoped by RLS.",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "dotenv": "^17.4.2",
+    "express": "^4.19.2"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

@@ -1,0 +1,17 @@
+body { font-family: system-ui, sans-serif; margin: 0; color: #1a1a1a; }
+header { display: flex; justify-content: space-between; align-items: center; padding: 12px 20px; border-bottom: 1px solid #ddd; }
+#actor-bar { display: flex; align-items: center; gap: 8px; font-size: 13px; }
+#sync-badge { color: #666; font-style: italic; }
+nav#tabs { display: flex; gap: 4px; padding: 8px 20px; border-bottom: 1px solid #eee; }
+nav#tabs button { padding: 6px 14px; border: 1px solid #ccc; background: #fafafa; cursor: pointer; border-radius: 4px; }
+nav#tabs button.active { background: #1a1a1a; color: #fff; border-color: #1a1a1a; }
+main { padding: 20px; }
+.view { display: none; }
+.view.active { display: block; }
+.filters { display: flex; gap: 12px; margin-bottom: 12px; font-size: 13px; }
+.filters input { margin-left: 4px; }
+table { width: 100%; border-collapse: collapse; font-size: 14px; }
+th, td { text-align: left; padding: 6px 10px; border-bottom: 1px solid #eee; }
+th { color: #666; font-weight: 600; }
+td.empty { color: #999; font-style: italic; text-align: center; padding: 20px; }
+.hint { color: #666; font-size: 13px; margin-top: -4px; }

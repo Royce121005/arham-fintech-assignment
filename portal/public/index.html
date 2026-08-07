@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Arham Fintech — Internal Ops Portal</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header>
+    <h1>Internal Ops Portal</h1>
+    <div id="actor-bar">
+      <label for="actor-select">Acting as:</label>
+      <select id="actor-select"><option value="">Loading employees…</option></select>
+      <span id="sync-badge" title="Freshness of underlying data, not of this page">·</span>
+    </div>
+  </header>
+
+  <nav id="tabs">
+    <button data-view="clients" class="active">Clients</button>
+    <button data-view="trades">Trades</button>
+    <button data-view="my-clients">My Clients</button>
+    <button data-view="employees">Employees</button>
+    <button data-view="incentives">Incentives</button>
+  </nav>
+
+  <main>
+    <section id="view-clients" class="view active">
+      <h2>Clients</h2>
+      <table><thead><tr><th>Client ID</th><th>Name</th><th>Segment</th><th>KYC</th></tr></thead>
+        <tbody id="clients-body"></tbody></table>
+    </section>
+
+    <section id="view-trades" class="view">
+      <h2>Trades</h2>
+      <div class="filters">
+        <label>Client ID <input id="trades-client-filter" placeholder="e.g. C00042" /></label>
+        <label>From <input id="trades-from-filter" type="date" /></label>
+        <label>To <input id="trades-to-filter" type="date" /></label>
+        <button id="trades-filter-apply">Apply</button>
+      </div>
+      <table><thead><tr><th>Trade ID</th><th>Client</th><th>Date &amp; Time</th><th>Side</th><th>Amount</th><th>Brokerage</th></tr></thead>
+        <tbody id="trades-body"></tbody></table>
+    </section>
+
+    <section id="view-my-clients" class="view">
+      <h2>My Clients</h2>
+      <p class="hint">Scoped server-side by Row Level Security — not by a client-side filter.</p>
+      <table><thead><tr><th>Client ID</th><th>Name</th><th>Segment</th></tr></thead>
+        <tbody id="my-clients-body"></tbody></table>
+    </section>
+
+    <section id="view-employees" class="view">
+      <h2>Employees</h2>
+      <table><thead><tr><th>Employee ID</th><th>Name</th><th>Role</th></tr></thead>
+        <tbody id="employees-body"></tbody></table>
+    </section>
+
+    <section id="view-incentives" class="view">
+      <h2>Incentives</h2>
+      <p class="hint">Management sees every RM; an RM sees only their own row (RLS on the underlying tables the view reads).</p>
+      <table><thead><tr><th>Employee</th><th>Trades</th><th>Total Brokerage</th><th>Incentive</th></tr></thead>
+        <tbody id="incentives-body"></tbody></table>
+    </section>
+  </main>
+
+  <script src="env.js"></script>
+  <script type="module" src="app.js"></script>
+</body>
+</html>

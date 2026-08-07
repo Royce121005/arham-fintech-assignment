@@ -101,7 +101,7 @@ app.get('/trades', bsePain, (req, res) => {
     filtered = filtered.filter(t => t.clientId === req.query.clientId);
   }
   if (req.query.from) {
-    filtered = filtered.filter(t => t.tradeDate >= req.query.from);
+    filtered = filtered.filter(t => t.tradeTimestamp >= req.query.from || t.tradeDate >= req.query.from);
   }
   if (req.query.to) {
     filtered = filtered.filter(t => t.tradeDate <= req.query.to);

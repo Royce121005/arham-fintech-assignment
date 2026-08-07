@@ -195,7 +195,7 @@ async function syncTrades({ reconcile }) {
       // (settlement lag). Idempotent upsert means re-fetching that overlap
       // is free, not harmful.
       const from = new Date(new Date(state.last_watermark).getTime() - 24 * 60 * 60 * 1000);
-      params.from = from.toISOString().slice(0, 10);
+      params.from = from.toISOString();
     }
     const total = await pullAllPages({
       resource: 'trades',

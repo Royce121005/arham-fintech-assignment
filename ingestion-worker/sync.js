@@ -23,6 +23,7 @@
 // =============================================================================
 
 require('dotenv').config();
+const http = require('http');
 const { createClient } = require('@supabase/supabase-js');
 
 const BSE_BASE_URL = process.env.BSE_BASE_URL || 'http://localhost:4000';
@@ -280,6 +281,22 @@ function start() {
 }
 
 module.exports = { start, syncTrades, syncClients, syncEmployeesAndMappings };
+
+// ---- Minimal HTTP listener (Render free-tier requirement) ----------------
+// This worker has no natural HTTP surface — it's a background loop. Render's
+// free tier only supports Web Services, which require listening on
+// process.env.PORT and responding to requests. This listener exists purely
+// to satisfy that requirement; it plays no role in the actual sync logic.
+// Note: free Web Services still sleep after 15 min with no inbound HTTP
+// traffic, which pauses this loop too — an external uptime pinger hitting
+// this endpoint periodically keeps it alive continuously.
+const HEALTH_PORT = process.env.PORT || 3001;
+http.createServer((req, res) => {
+  res.writeHead(200, { 'Content-Type': 'application/json' });
+  res.end(JSON.stringify({ status: 'ingestion-worker running' }));
+}).listen(HEALTH_PORT, () => {
+  console.log(`[sync] health listener on :${HEALTH_PORT} (Render free-tier requirement, not part of sync logic)`);
+});
 
 if (require.main === module) {
   start();

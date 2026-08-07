@@ -1,7 +1,7 @@
 'use strict';
 
 const express = require('express');
-const { EMPLOYEES, CLIENTS, MAPPINGS, TRADES } = require('./seed');
+const { EMPLOYEES, CLIENTS, MAPPINGS, TRADES, createLiveTrade } = require('./seed');
 
 const app = express();
 app.use(express.json());
@@ -120,6 +120,21 @@ app.get('/employee-mappings', (req, res) => {
 });
 
 const PORT = process.env.PORT || 4000;
+
+// ---- Optional live trade generation (for demoing incremental sync) -------
+// Opt-in only, off by default. When enabled, mints one new trade at a
+// fixed interval and appends it to TRADES, so the ingestion worker's
+// incremental pull has genuinely new data to find on some cycles instead
+// of only ever re-matching the static seed via the overlap window.
+const LIVE_TRADES_ENABLED = String(process.env.BSE_LIVE_TRADES ?? 'false').toLowerCase() === 'true';
+const LIVE_TRADE_INTERVAL_MS = Number(process.env.BSE_LIVE_TRADE_INTERVAL_MS ?? 10000);
+
+if (LIVE_TRADES_ENABLED) {
+  setInterval(() => {
+    const trade = createLiveTrade();
+    console.log(`[mock-bse-api] minted live trade ${trade.tradeId} (${trade.symbol}, ${trade.side}) for ${trade.clientId}`);
+  }, LIVE_TRADE_INTERVAL_MS);
+}
 app.listen(PORT, () => {
   console.log(`[mock-bse-api] listening on :${PORT}`);
   console.log(`[mock-bse-api] BSE_DELAY_MS=${DELAY_MS} BSE_FAILURE_RATE=${FAILURE_RATE} PAGE_SIZE=${DEFAULT_PAGE_SIZE}`);

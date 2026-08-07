@@ -116,4 +116,37 @@ const CLIENTS = buildClients(300);
 const MAPPINGS = buildMappings(EMPLOYEES, CLIENTS);
 const TRADES = buildTrades(4000, CLIENTS);
 
-module.exports = { EMPLOYEES, CLIENTS, MAPPINGS, TRADES };
+// ---- Live trade generation (opt-in, for demoing incremental sync) --------
+// Everything above is generated once at boot with a fixed seed and then sits
+// static. This appends new trades to the in-memory TRADES array over time,
+// so an incremental sync pointed at this mock can observe "new trade shows
+// up -> gets picked up" instead of just re-matching the same 4000 forever.
+// Continues the tradeId sequence from wherever the seeded set left off.
+let liveTradeCounter = TRADES.length;
+
+function createLiveTrade() {
+  const client = pick(CLIENTS);
+  const now = new Date();
+  const qty = Math.floor(rand() * 500) + 1;
+  const price = +(rand() * 3000 + 50).toFixed(2);
+  const value = +(qty * price).toFixed(2);
+  const brokerage = +(value * (0.0003 + rand() * 0.0002)).toFixed(2);
+
+  liveTradeCounter += 1;
+  const trade = {
+    tradeId: `TRD${pad(liveTradeCounter, 7)}`,
+    clientId: client.clientId,
+    symbol: pick(SYMBOLS),
+    side: rand() > 0.5 ? 'BUY' : 'SELL',
+    quantity: qty,
+    price,
+    value,
+    brokerage,
+    tradeDate: now.toISOString().slice(0, 10),
+    tradeTimestamp: now.toISOString()
+  };
+  TRADES.push(trade);
+  return trade;
+}
+
+module.exports = { EMPLOYEES, CLIENTS, MAPPINGS, TRADES, createLiveTrade };

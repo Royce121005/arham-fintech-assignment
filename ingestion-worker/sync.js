@@ -201,7 +201,11 @@ async function syncTrades({ reconcile }) {
       resource: 'trades',
       path: '/trades',
       params,
-      upsertPage: upsertTrades
+      upsertPage: async (rows) => {
+        const fresh = rows.filter(t => Number(t.tradeId.slice(3)) > 4000);
+        if (fresh.length) console.log('[debug] fresh trades this page:', fresh.map(t => t.tradeId));
+        await upsertTrades(rows);
+      }
     });
     const now = new Date().toISOString();
     await setSyncState('trades', {

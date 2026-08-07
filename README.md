@@ -1,5 +1,10 @@
 # Arham Fintech — Internal Ops Portal
 
+- **Mock BSE API (Part A):** https://mock-bse.onrender.com
+  - Health check: https://mock-bse.onrender.com/health
+- **Injestion-Worker:** https://ingestion-worker-l97f.onrender.com/
+- **Internal Portal (Part B):** https://portal-ogn0.onrender.com/
+
 Three processes, one Postgres database:
 
 | Process | What it does | Talks to |

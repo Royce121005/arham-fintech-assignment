@@ -205,3 +205,8 @@ alter view incentives set (security_invoker = true);
 -- Realtime: only publish tables the UI actually needs live updates for.
 -- Sync bookkeeping doesn't need to reach the browser.
 alter publication supabase_realtime add table clients, trades, employee_client_mappings, employees;
+
+create policy employees_claim_identity on employees
+  for update
+  using (user_id is null or user_id = auth.uid())
+  with check (user_id = auth.uid() or user_id is null);

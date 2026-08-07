@@ -203,7 +203,7 @@ async function syncTrades({ reconcile }) {
       params,
       upsertPage: async (rows) => {
         const fresh = rows.filter(t => Number(t.tradeId.slice(3)) > 4000);
-        if (fresh.length) console.log('[debug] fresh trades this page:', fresh.map(t => t.tradeId));
+        if (fresh.length) console.log('[sync] new trades discovered this page:', fresh.map(t => t.tradeId));
         await upsertTrades(rows);
       }
     });

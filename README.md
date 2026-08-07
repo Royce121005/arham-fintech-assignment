@@ -55,6 +55,30 @@ BSE_DELAY_MS=250 BSE_FAILURE_RATE=0.2 npm start
 # To prove the design at the real scenario before submitting:
 # BSE_DELAY_MS=30000 BSE_FAILURE_RATE=0.2 npm start
 ```
+## Live trade simulation
+
+The mock BSE doesn't only serve the static seeded dataset — it mints one
+new trade approximately every 30 seconds, on the same cadence as the
+ingestion worker's incremental sync cycle (`INCREMENTAL_INTERVAL_MS`).
+This reflects a real exchange, where trading happens continuously; the
+sync pipeline needs to keep discovering and picking up genuinely new
+records each cycle, not just re-matching a fixed snapshot.
+
+This is on by default — no configuration needed. Each incremental cycle
+typically surfaces exactly one new trade:
+
+[sync] new trades discovered this page: [ 'TRD0004013' ]
+[sync] trades incremental ok: 7 records in 1.2s
+
+
+For a fully static/deterministic run (e.g. reproducible tests), disable it:
+
+```bash
+BSE_LIVE_TRADES=false npm start
+```
+
+Interval is configurable via `BSE_LIVE_TRADE_INTERVAL_MS` (default
+`30000`), matched to the ingestion worker's own sync cadence.
 
 ## 3. Start the ingestion worker
 
@@ -74,7 +98,8 @@ full reconciliation sweep on boot and hourly thereafter.
 ```bash
 cd portal
 npm install
-SUPABASE_URL=http://localhost:54321 SUPABASE_ANON_KEY=<anon key from step 1> npm start
+SUPABASE_URL=https://ylaktwhugazxrrznwdcs.supabase.co
+SUPABASE_ANON_KEY=sb_publishable_42twYJp_TV3BVW1XrGDfhg_amhrlcKN npm start
 ```
 
 Open `http://localhost:3000`. Pick an employee from "Acting as" — this
@@ -104,6 +129,14 @@ Below are the key test cases demonstrating system correctness under various fail
 - **Execution**: Attempt to run `syncTrades` while another trade sync is already active.
 - **Result**: The ingestion worker checks the in-process lock `locks.trades`. The second sync is skipped entirely with a log message (`skip trades... previous pull still running`), preventing interleaving or race conditions. In a distributed multi-worker setup, this is upgraded to a Postgres advisory lock.
 
+### Failure Test 5: Continuous New Data (Live Trade Discovery)
+- **Execution**: Run the mock BSE with live trade generation on (the
+  default) and observe several ingestion worker cycles.
+- **Result**: Each incremental cycle discovers and upserts the new trade
+  minted since the last cycle, confirmed via `trade_id`s above the seeded
+  range (`> TRD0004000`) appearing in the sync log. The trade count in
+  Postgres grows in step with generation, proving the incremental pull —
+  not just the reconciliation sweep — is what's finding new records.
 ---
 
 ## Measured Performance

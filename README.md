@@ -3,8 +3,9 @@
 ## Live Deployment
 
 - **Mock BSE API (Part A):** https://mock-bse-api-r32q.onrender.com
-  - Health check: https://mock-bse-api-r32q.onrender.com/health
-- **Internal Portal (Part B):** https://arham-internal-portal.onrender.com
+  - Health check: https://mock-bse.onrender.com/health
+- **Injestion-Worker:** https://ingestion-worker-l97f.onrender.com/
+- **Internal Portal (Part B):** https://portal-ogn0.onrender.com/
 
 > **Note:** both are deployed on Render's free tier, which spins a service
 > down after ~15 minutes of no traffic. If a service was asleep, the first

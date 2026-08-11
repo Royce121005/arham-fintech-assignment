@@ -64,6 +64,7 @@ create table trades (
   trade_id      text primary key,
   client_id     text not null references clients(client_id) on delete cascade,
   trade_date    date not null,
+  trade_timestamp timestamptz,
   brokerage     numeric not null,
   amount        numeric,
   side          text,

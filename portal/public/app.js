@@ -236,6 +236,9 @@ document.getElementById('trades-filter-apply').addEventListener('click', () => r
 // (which was the "glitching" the user saw: the view renders mid-switch
 // with the wrong identity, returns 0 rows, then renders again correctly).
 // ---------------------------------------------------------------------------
+let renderDebounceTimer = null;
+let actorBarDebounceTimer = null;
+
 function subscribeRealtime() {
   const channel = supabase.channel('portal-live');
   for (const table of ['clients', 'trades', 'employee_client_mappings', 'employees']) {
@@ -247,11 +250,21 @@ function subscribeRealtime() {
 
       // For employees table changes that aren't caused by actor switching
       // (e.g. the ingestion worker re-synced employees), reload the actor bar too.
-      if (table === 'employees') loadActorBar();
+      // Debounce this to avoid spamming the database if many rows update at once.
+      if (table === 'employees') {
+        clearTimeout(actorBarDebounceTimer);
+        actorBarDebounceTimer = setTimeout(() => {
+          if (!isSwitchingActor) loadActorBar();
+        }, 150);
+      }
 
-      // Only the currently-visible view needs to re-render; other tabs will
-      // re-fetch fresh data naturally when the user switches to them.
-      refreshActiveView();
+      // Only the currently-visible view needs to re-render.
+      // Debounce to prevent 50 concurrent queries if 50 trades are inserted instantly,
+      // which would exhaust connection limits and cause the "empty state" flicker.
+      clearTimeout(renderDebounceTimer);
+      renderDebounceTimer = setTimeout(() => {
+        if (!isSwitchingActor) refreshActiveView();
+      }, 150);
     });
   }
   channel.subscribe();

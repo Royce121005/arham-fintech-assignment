@@ -88,6 +88,7 @@ create table sync_state (
   last_watermark      timestamptz,             -- high-water mark for incremental pulls
   last_success_at     timestamptz,
   last_reconciled_at  timestamptz,             -- last time a FULL sweep completed
+  resume_page         integer,                 -- the page number to resume from if a sweep fails midway
   status              text not null default 'idle',  -- idle | running | failed
   last_error          text
 );

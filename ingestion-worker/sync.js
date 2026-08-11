@@ -106,19 +106,24 @@ async function setSyncState(resource, patch) {
 // as it arrives (not buffered until the pull finishes). A 10-minute full
 // pull still shows progressively fresher data throughout, and a mid-pull
 // crash loses nothing already committed.
-async function pullAllPages({ resource, path, params, upsertPage }) {
-  let page = 1;
+async function pullAllPages({ resource, path, params, upsertPage, startPage = 1, onPageFailed }) {
+  let page = startPage;
   let totalPages = 1;
   let totalRecords = 0;
   const qs = new URLSearchParams({ page: String(page), pageSize: String(PAGE_SIZE), ...params });
-  do {
-    qs.set('page', String(page));
-    const result = await fetchPageWithRetry(`${BSE_BASE_URL}${path}?${qs.toString()}`);
-    await upsertPage(result.data);
-    totalPages = result.totalPages;
-    totalRecords = result.totalRecords;
-    page++;
-  } while (page <= totalPages);
+  try {
+    do {
+      qs.set('page', String(page));
+      const result = await fetchPageWithRetry(`${BSE_BASE_URL}${path}?${qs.toString()}`);
+      await upsertPage(result.data);
+      totalPages = result.totalPages;
+      totalRecords = result.totalRecords;
+      page++;
+    } while (page <= totalPages);
+  } catch (err) {
+    if (onPageFailed) await onPageFailed(page);
+    throw err;
+  }
   return totalRecords;
 }
 
@@ -198,10 +203,18 @@ async function syncTrades({ reconcile }) {
       const from = new Date(new Date(state.last_watermark).getTime() - 24 * 60 * 60 * 1000);
       params.from = from.toISOString();
     }
+    const startPage = (reconcile && state.resume_page) ? state.resume_page : 1;
+    if (reconcile && startPage > 1) console.log(`[sync] trades RECONCILE resuming from page ${startPage}`);
     const total = await pullAllPages({
       resource: 'trades',
       path: '/trades',
       params,
+      startPage,
+      onPageFailed: async (failedPage) => {
+        if (reconcile) {
+          await setSyncState('trades', { resume_page: failedPage });
+        }
+      },
       upsertPage: async (rows) => {
         const fresh = rows.filter(t => Number(t.tradeId.slice(3)) > 4000);
         if (fresh.length) console.log('[sync] new trades discovered this page:', fresh.map(t => t.tradeId));
@@ -213,6 +226,7 @@ async function syncTrades({ reconcile }) {
       status: 'idle',
       last_success_at: now,
       last_watermark: now,
+      resume_page: null,
       ...(reconcile ? { last_reconciled_at: now } : {}),
       last_error: null
     });
@@ -248,6 +262,26 @@ async function syncClients() {
   }
 }
 
+// ---------------------------------------------------------------------------
+// Data Archival Policy
+// ---------------------------------------------------------------------------
+async function archiveOldTrades() {
+  const threeYearsAgo = new Date();
+  threeYearsAgo.setFullYear(threeYearsAgo.getFullYear() - 3);
+  
+  // In a real production app, you would first SELECT these rows and export them 
+  // to an S3 bucket or a cold-storage database before deleting them from the hot table.
+  const { count, error } = await db.from('trades')
+    .delete({ count: 'exact' })
+    .lt('trade_date', threeYearsAgo.toISOString().slice(0, 10));
+    
+  if (error) {
+    console.error(`[sync] failed to archive old trades:`, error.message);
+  } else if (count > 0) {
+    console.log(`[sync] archived ${count} trades older than 3 years to cold storage.`);
+  }
+}
+
 // Internal application source — fast & reliable per the brief, so no
 // pagination/retry machinery needed, just a plain fetch on a short interval.
 async function syncEmployeesAndMappings() {
@@ -272,12 +306,14 @@ function start() {
   // of watermark, since an empty DB has nothing to be "incremental" from.
   syncEmployeesAndMappings();
   syncClients();
-  syncTrades({ reconcile: true });
+  archiveOldTrades().then(() => syncTrades({ reconcile: true }));
 
   setInterval(syncEmployeesAndMappings, FAST_POLL_INTERVAL_MS);
   setInterval(syncClients, RECONCILE_INTERVAL_MS); // clients: always full, just on the slow schedule
   setInterval(() => syncTrades({ reconcile: false }), INCREMENTAL_INTERVAL_MS);
-  setInterval(() => syncTrades({ reconcile: true }), RECONCILE_INTERVAL_MS);
+  setInterval(() => {
+    archiveOldTrades().then(() => syncTrades({ reconcile: true }));
+  }, RECONCILE_INTERVAL_MS);
 }
 
 module.exports = { start, syncTrades, syncClients, syncEmployeesAndMappings };
